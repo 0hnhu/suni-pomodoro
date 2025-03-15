@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suni</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>suni</h1>
+    
+    <div class="app-container glass-card">
+        <div class="timer-column">
+            <div class="timer-display" id="timer">25:00</div>
+            <div class="timer-label" id="timerLabel">Focus Time</div>
+            
+            <div class="timer-controls">
+                <button id="startBtn">Start</button>
+                <button id="pauseBtn" disabled>Pause</button>
+                <button id="resetBtn" class="secondary-button">Reset</button>
+            </div>
+            
+            <div class="session-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="todaySessions">0</div>
+                    <div class="stat-label">number of sessions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalMinutes">0</div>
+                    <div class="stat-label">Minutes Focused</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress-column">
+            <div class="progress-title">What are you working on this session?</div>
+            <div class="progress-input">
+                <textarea id="progressInput" placeholder="Type tasks you've accomplished during this focus session..."></textarea>
+            </div>
+            
+            <div class="summary-section">
+                <div class="summary-title">things you've done today</div>
+                <div class="summary-list" id="summaryList">
+                    <!-- Summary items will be added here -->
+                </div>
+                
+            </div>
+            
+        </div>
+
+        
+    </div>
+    <div class="day-timeline-container">
+        <div class="day-timeline-label">today's journey</div>
+        <div class="day-timeline" id="dayTimeline">
+          <!-- Timeline segments will be added here dynamically -->
+        </div>
+      </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
