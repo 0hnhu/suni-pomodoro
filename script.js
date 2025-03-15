@@ -10,7 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const todaySessionsEl = document.getElementById('todaySessions');
     const totalMinutesEl = document.getElementById('totalMinutes');
     const dayTimeline = document.getElementById('dayTimeline');
-    
+    const historyToggle = document.getElementById('historyToggle');
+    const historyPanel = document.getElementById('historyPanel');
+    const appWrapper = document.querySelector('.app-wrapper');
+
+
+    historyToggle.addEventListener('click', () => {
+        historyToggle.classList.toggle('active');
+        historyPanel.classList.toggle('active');
+        appWrapper.classList.toggle('history-active');
+        
+        if (historyPanel.classList.contains('active')) {
+          updateVerticalTimeline(); // Update timeline content when opened
+        }
+      });
+
+
     // Timer variables
     let timer;
     let timeLeft = 25 * 60; // 25 minutes in seconds
@@ -57,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update timer display
     const updateTimerDisplay = () => {
         timerDisplay.textContent = formatTime(timeLeft);
-        document.title = `${formatTime(timeLeft)} - Sana`;
+        document.title = `${formatTime(timeLeft)} - suni pomodoro`;
     };
     
     // Update mode label
@@ -257,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const todayItems = accomplishments.filter(item => item.date === today);
         
         if (todayItems.length === 0) {
-            summaryList.innerHTML = '<div class="summary-item">no accomplishments recorded today. complete a focus session to start tracking!</div>';
+            summaryList.innerHTML = '<div class="summary-item">nothing yet</div>';
         } else {
             summaryList.innerHTML = '';
             todayItems.forEach((item, index) => {
@@ -274,13 +289,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     };
+
+    
     
     // Update stats display
     const updateStatsDisplay = () => {
         todaySessionsEl.textContent = stats.todaySessions;
         totalMinutesEl.textContent = stats.totalMinutes;
     };
-    
+
+
     // Check for a new day
     const checkNewDay = () => {
         const lastDate = localStorage.getItem('pomodoroLastDate');

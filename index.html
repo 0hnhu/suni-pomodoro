@@ -9,53 +9,68 @@
 <body>
     <h1>suni</h1>
     
-    <div class="app-container glass-card">
-        <div class="timer-column">
-            <div class="timer-display" id="timer">25:00</div>
-            <div class="timer-label" id="timerLabel">Focus Time</div>
-            
-            <div class="timer-controls">
-                <button id="startBtn">Start</button>
-                <button id="pauseBtn" disabled>Pause</button>
-                <button id="resetBtn" class="secondary-button">Reset</button>
+    <div class="app-wrapper">
+        <div class="app-container glass-card">
+            <!-- Chevron toggle button -->
+            <div class="history-toggle" id="historyToggle" title="View history">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
             </div>
             
-            <div class="session-stats">
-                <div class="stat-item">
-                    <div class="stat-value" id="todaySessions">0</div>
-                    <div class="stat-label">number of sessions</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="totalMinutes">0</div>
-                    <div class="stat-label">Minutes Focused</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="progress-column">
-            <div class="progress-title">What are you working on this session?</div>
-            <div class="progress-input">
-                <textarea id="progressInput" placeholder="Type tasks you've accomplished during this focus session..."></textarea>
-            </div>
-            
-            <div class="summary-section">
-                <div class="summary-title">things you've done today</div>
-                <div class="summary-list" id="summaryList">
-                    <!-- Summary items will be added here -->
+            <div class="timer-column">
+                <div class="timer-display" id="timer">25:00</div>
+                <div class="timer-label" id="timerLabel">focus time</div>
+                
+                <div class="timer-controls">
+                    <button id="startBtn">start</button>
+                    <button id="pauseBtn" disabled>pause</button>
+                    <button id="resetBtn" class="secondary-button">reset</button>
                 </div>
                 
+                <div class="session-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="todaySessions">0</div>
+                        <div class="stat-label">number of sessions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalMinutes">0</div>
+                        <div class="stat-label">minutes focused</div>
+                    </div>
+                </div>
             </div>
             
+            <div class="progress-column">
+                <div class="progress-title">what did you work on this session?</div>
+                <div class="progress-input">
+                    <textarea id="progressInput" placeholder="type tasks you've accomplished during this focus session..."></textarea>
+                </div>
+                
+                <div class="summary-section">
+                    <div class="summary-title">things you've done today</div>
+                    <div class="summary-list" id="summaryList">
+                        <!-- Summary items will be added here -->
+                    </div>
+                </div>
+            </div>
         </div>
-
         
+        <div class="history-panel" id="historyPanel">
+            <div class="history-panel-header">
+                <div class="timeline-title">history</div>
+            </div>
+            <div class="vertical-timeline" id="verticalTimeline">
+                <!-- Timeline items will be added here dynamically -->
+            </div>
+        </div>
     </div>
+
     <div class="day-timeline-container">
         <div class="day-timeline-label">today's journey</div>
         <div class="day-timeline" id="dayTimeline">
-          <!-- Timeline segments will be added here dynamically -->
+            <!-- Timeline segments will be added here dynamically -->
         </div>
-      </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

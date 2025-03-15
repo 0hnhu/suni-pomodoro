@@ -1,14 +1,14 @@
 :root {
     --bg-color: #f5f5f7;
-    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-bg: rgba(255, 255, 255, 0.65);
     --text-color: #1d1d1f;
     --text-secondary: #86868b;
-    --accent-color: #ff375f; /* Apple's pink-red */
+    --accent-color: #ff375f;
     --accent-light: rgba(255, 55, 95, 0.1);
     --border-color: rgba(0, 0, 0, 0.1);
     --shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    --timer-color: #ff375f; /* Pink-red timer */
-    --success-color: #30d158; /* Apple's green */
+    --timer-color: #ff375f;
+    --success-color: #30d158;
     --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', sans-serif;
 }
 
@@ -38,20 +38,7 @@ body, h1, h2, h3, p, button, .timer-label, .progress-title,
     text-transform: lowercase;
 }
 
-
-/* Override any unwanted bars */
-body::after,
-.glass-card::after,
-.app-container::after,
-.day-timeline-container::after,
-.day-timeline::after {
-  display: none !important;
-  content: none !important;
-  border: none !important;
-  background: none !important;
-}
-
-/* Animations */
+/* Animation keyframes */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -68,18 +55,6 @@ body::after,
     to { transform: translateX(0); opacity: 1; }
 }
 
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-@keyframes timerPulse {
-    0% { text-shadow: 0 0 0 rgba(255, 55, 95, 0); }
-    50% { text-shadow: 0 0 15px rgba(255, 55, 95, 0.3); }
-    100% { text-shadow: 0 0 0 rgba(255, 55, 95, 0); }
-}
-
 @keyframes borderGlow {
     0% { box-shadow: 0 0 0 rgba(255, 55, 95, 0); }
     50% { box-shadow: 0 0 10px rgba(255, 55, 95, 0.3); }
@@ -90,6 +65,18 @@ body::after,
     0% { transform: translateY(0px); }
     50% { transform: translateY(-5px); }
     100% { transform: translateY(0px); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes confettiFade {
+    0% { transform: scale(0); opacity: 0; }
+    5% { opacity: 0.2; }
+    40% { opacity: 0.4; }
+    100% { transform: scale(4); opacity: 0; }
 }
 
 h1 {
@@ -103,9 +90,20 @@ h1 {
     animation: fadeIn 0.5s ease-out;
 }
 
-h1::after {
-    display:none;
+/* App wrapper for sliding panel functionality */
+.app-wrapper {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.app-wrapper.history-active {
+    transform: translateX(-160px);
+  }
+  
 
 .glass-card {
     background: rgba(255, 255, 255, 0.65);
@@ -124,10 +122,87 @@ h1::after {
 }
 
 .app-container {
+    width: 100%;
+    flex: 1;
     display: flex;
     flex-direction: row;
     gap: 30px;
     min-height: 600px;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+/* Chevron toggle button */
+/* Update the history-toggle position */
+/* Update the history-toggle to sit on top of the container */
+.history-toggle {
+    position: absolute;
+    top: 20px; /* Position from the top instead of center */
+    right: 20px; /* Position from the right edge, inside the container */
+    width: 30px;
+    height: 30px;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .history-toggle:hover {
+    color: var(--accent-color);
+    transform: scale(1.05);
+  }
+
+.history-toggle svg {
+    transition: transform 0.3s ease;
+}
+
+.history-toggle.active svg {
+    transform: rotate(180deg);
+}
+
+/* Sliding history panel */
+.history-panel {
+    width: 300px;
+    flex-shrink: 0; /* Don't let it shrink */
+    position: absolute; /* Take it out of the flow */
+    right: -320px; /* Position it fully off-screen */
+    top: 0;
+    background-color: var(--card-bg);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    opacity: 0;
+    transition: opacity 0.3s ease, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    height: 600px;
+  }
+  
+  .history-panel.active {
+    opacity: 1;
+    right: -320px; /* Keep it in the same position */
+  }
+
+.history-panel-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.vertical-timeline {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 350px;
 }
 
 .timer-column {
@@ -144,7 +219,7 @@ h1::after {
     font-size: 96px;
     font-weight: 300;
     margin-bottom: 10px;
-    color: #ff375f; /* Direct color assignment */
+    color: #ff375f;
     letter-spacing: -2px;
     font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
     transition: color 0.5s ease;
@@ -166,7 +241,7 @@ h1::after {
 }
 
 button {
-    background-color: #ff375f; /* Direct color assignment */
+    background-color: #ff375f;
     color: white;
     border: none;
     padding: 12px 24px;
@@ -341,7 +416,7 @@ textarea:focus {
     display: inline-block;
     width: 8px;
     height: 8px;
-    background-color: #ff375f; /* Direct color assignment */
+    background-color: #ff375f;
     border-radius: 50%;
     margin-right: 8px;
     box-shadow: 0 0 0 2px rgba(255, 55, 95, 0.1);
@@ -359,58 +434,6 @@ textarea:focus {
     text-align: center;
     width: 100%;
 }
-
-/* Day Timeline Styling - Updated */
-.day-timeline-container {
-    width: 100%; /* Full width */
-    max-width: none; /* Remove max-width restriction */
-    margin: 30px auto 0;
-    padding: 0; /* Remove padding to ensure full width */
-  }
-  
-  .day-timeline-label {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 10px;
-    text-align: center;
-    font-weight: 400;
-  }
-  
-  .day-timeline {
-    height: 12px; /* Thicker bar */
-    width: 100%;
-    background-color: rgba(0, 0, 0, 0.03);
-    border-radius: 6px; /* Adjusted for thicker bar */
-    overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 20px; /* Add bottom margin for spacing */
-  }
-  
-  .timeline-segment {
-    height: 100%;
-    transition: width 0.3s ease;
-  }
-  
-  .timeline-segment.focus {
-    background-color: #ff6b8b; /* Pink for focus time */
-  }
-  
-  .timeline-segment.break {
-    background-color: #30d158; /* Green for break time */
-  }
-  
-  /* Empty state when no segments exist */
-  .day-timeline:empty::after {
-    content: "";
-    position: absolute;
-    width: 12px; /* Adjusted for thicker bar */
-    height: 12px; /* Adjusted for thicker bar */
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 50%;
-    left: 50%;
-    transform: translateX(-50%);
-  }
 
 .stat-item {
     flex: 1;
@@ -443,7 +466,7 @@ textarea:focus {
 .stat-value {
     font-size: 32px;
     font-weight: 600;
-    color: #ff375f; /* Direct color assignment */
+    color: #ff375f;
     margin-bottom: 5px;
     font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -452,6 +475,96 @@ textarea:focus {
     font-size: 14px;
     color: var(--text-secondary);
     font-weight: 500;
+}
+
+/* Timeline day components */
+.timeline-day {
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.timeline-day-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.timeline-session {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.timeline-session::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.timeline-session::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #ff6b8b;
+}
+
+.timeline-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Day Timeline container */
+.day-timeline-container {
+    width: 100%;
+    max-width: none;
+    margin: 50px auto 0;
+    padding: 0;
+}
+
+.day-timeline-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 400;
+}
+
+.day-timeline {
+    height: 12px;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+}
+
+.timeline-segment {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.timeline-segment.focus {
+    background-color: #ff6b8b;
+}
+
+.timeline-segment.break {
+    background-color: #30d158;
 }
 
 /* Confetti Animation */
@@ -465,11 +578,6 @@ textarea:focus {
     z-index: 9999;
     background: radial-gradient(ellipse at center, transparent 60%, rgba(255, 55, 95, 0.1) 100%);
     animation: fadeIn 0.3s ease-out, fadeOut 0.5s ease-in 2.5s forwards;
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
 }
 
 .confetti-container::before,
@@ -489,13 +597,7 @@ textarea:focus {
     animation: confettiFade 3s ease-in-out forwards;
 }
 
-@keyframes confettiFade {
-    0% { transform: scale(0); opacity: 0; }
-    5% { opacity: 0.2; }
-    40% { opacity: 0.4; }
-    100% { transform: scale(4); opacity: 0; }
-}
-
+/* Responsive styles */
 @media (max-width: 768px) {
     .app-container {
         flex-direction: column;
@@ -509,33 +611,4 @@ textarea:focus {
     }
 
     .progress-input {
-        height: 200px;
-    }
-
-    .timer-display {
-        font-size: 72px;
-    }
-
-    .glass-card {
-        margin-bottom: 20px;
-    }
-}
-
-/* Stylish scrollbar for WebKit browsers */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
-}
+        heigh
