@@ -102,8 +102,7 @@ h1 {
 
 .app-wrapper.history-active {
     transform: translateX(-160px);
-  }
-  
+}
 
 .glass-card {
     background: rgba(255, 255, 255, 0.65);
@@ -152,12 +151,12 @@ h1 {
     z-index: 100;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .history-toggle:hover {
+}
+
+.history-toggle:hover {
     color: var(--accent-color);
     transform: scale(1.05);
-  }
+}
 
 .history-toggle svg {
     transition: transform 0.3s ease;
@@ -186,12 +185,12 @@ h1 {
     border: 1px solid var(--border-color);
     overflow: hidden;
     height: 600px;
-  }
-  
-  .history-panel.active {
+}
+
+.history-panel.active {
     opacity: 1;
     right: -320px; /* Keep it in the same position */
-  }
+}
 
 .history-panel-header {
     padding: 15px;
@@ -597,18 +596,154 @@ textarea:focus {
     animation: confettiFade 3s ease-in-out forwards;
 }
 
-/* Responsive styles */
+/* Responsive styles - Updated for better mobile experience */
 @media (max-width: 768px) {
+    body {
+        padding: 20px 10px;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
     .app-container {
         flex-direction: column;
         height: auto;
+        min-height: unset;
+        gap: 0;
+    }
+
+    .timer-column {
+        padding: 30px 20px;
     }
 
     .progress-column {
         border-left: none;
         border-top: 1px solid var(--border-color);
-        padding-top: 30px;
+        padding: 30px 20px;
     }
 
     .progress-input {
-        heigh
+        height: 200px;
+    }
+
+    .timer-display {
+        font-size: 60px;
+    }
+
+    .timer-label {
+        margin-bottom: 20px;
+    }
+
+    .timer-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    button {
+        min-width: 80px;
+        touch-action: manipulation;
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+
+    .stat-item {
+        padding: 12px 8px;
+        margin: 0 5px;
+    }
+
+    .stat-value {
+        font-size: 26px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    /* Fix the history panel for mobile */
+    .history-panel {
+        width: 260px;
+        right: -280px;
+        height: auto;
+        max-height: 90vh;
+        top: 50px;
+    }
+
+    .history-panel.active {
+        right: -280px;
+    }
+
+    .app-wrapper.history-active {
+        transform: translateX(-100px);
+    }
+
+    /* Ensure text areas fit */
+    textarea {
+        font-size: 16px; /* Prevent iOS zoom on focus */
+        -webkit-appearance: none; /* Fix iOS styling */
+    }
+    
+    /* Adjust timeline */
+    .day-timeline-container {
+        margin-top: 20px;
+    }
+}
+
+/* Even smaller screens */
+@media (max-width: 480px) {
+    .timer-display {
+        font-size: 46px;
+    }
+    
+    .timer-controls {
+        gap: 10px;
+    }
+    
+    button {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .session-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .stat-item {
+        margin: 0;
+        animation: none;
+    }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+    button {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .history-toggle {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+/* Stylish scrollbar for WebKit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}

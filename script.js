@@ -56,6 +56,95 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    // Function to update vertical timeline in history panel
+const updateVerticalTimeline = () => {
+    // Get the container
+    const verticalTimeline = document.getElementById('verticalTimeline');
+    
+    if (accomplishments.length === 0) {
+        verticalTimeline.innerHTML = '<div class="timeline-empty">no history yet. complete focus sessions to build your timeline!</div>';
+        return;
+    }
+    
+    // Group accomplishments by date
+    const groupedByDate = {};
+    accomplishments.forEach(acc => {
+        if (!groupedByDate[acc.date]) {
+            groupedByDate[acc.date] = [];
+        }
+        groupedByDate[acc.date].push(acc);
+    });
+    
+    // Clear existing timeline
+    verticalTimeline.innerHTML = '';
+    
+    // Get dates and sort them in descending order
+    const dates = Object.keys(groupedByDate).sort((a, b) => {
+        return new Date(b) - new Date(a);
+    });
+    
+    // Format date nicely
+    const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        if (date.toDateString() === today.toDateString()) {
+            return 'today';
+        } else if (date.toDateString() === yesterday.toDateString()) {
+            return 'yesterday';
+        } else {
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+    };
+    
+    // Build the timeline HTML
+    dates.forEach(date => {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'timeline-day';
+        
+        const dateHeader = document.createElement('div');
+        dateHeader.className = 'timeline-day-header';
+        dateHeader.textContent = formatDate(date);
+        dayElement.appendChild(dateHeader);
+        
+        // Sort sessions by time
+        const sortedSessions = groupedByDate[date].sort((a, b) => {
+            return new Date(b.timestamp) - new Date(a.timestamp);
+        });
+        
+        // Add each session
+        sortedSessions.forEach(session => {
+            const sessionElement = document.createElement('div');
+            sessionElement.className = 'timeline-session';
+            
+            const sessionTime = new Date(session.timestamp).toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            const sessionHeader = document.createElement('div');
+            sessionHeader.className = 'timeline-session-header';
+            sessionHeader.textContent = sessionTime;
+            sessionElement.appendChild(sessionHeader);
+            
+            const sessionContent = document.createElement('div');
+            sessionContent.className = 'timeline-session-content';
+            sessionContent.textContent = session.text;
+            sessionElement.appendChild(sessionContent);
+            
+            dayElement.appendChild(sessionElement);
+        });
+        
+        verticalTimeline.appendChild(dayElement);
+    });
+};
+
+
     // Save data to localStorage
     const saveData = () => {
         localStorage.setItem('pomodoroStats', JSON.stringify(stats));
@@ -261,6 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         accomplishments.unshift(accomplishment);
         saveData();
         displayAccomplishments();
+        updateVerticalTimeline();
     };
     
     // Display accomplishments in the summary list
@@ -337,5 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTimerDisplay();
     updateModeLabel();
     displayAccomplishments();
+    updateVerticalTimeline();
     loadTimeline();
 });
