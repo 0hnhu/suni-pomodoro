@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (historyPanel.classList.contains('active')) {
           updateVerticalTimeline(); // Update timeline content when opened
         }
-      });
+    });
 
 
     // Timer variables
@@ -57,92 +57,116 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // Function to update vertical timeline in history panel
-const updateVerticalTimeline = () => {
-    // Get the container
-    const verticalTimeline = document.getElementById('verticalTimeline');
-    
-    if (accomplishments.length === 0) {
-        verticalTimeline.innerHTML = '<div class="timeline-empty">no history yet. complete focus sessions to build your timeline!</div>';
-        return;
-    }
-    
-    // Group accomplishments by date
-    const groupedByDate = {};
-    accomplishments.forEach(acc => {
-        if (!groupedByDate[acc.date]) {
-            groupedByDate[acc.date] = [];
-        }
-        groupedByDate[acc.date].push(acc);
-    });
-    
-    // Clear existing timeline
-    verticalTimeline.innerHTML = '';
-    
-    // Get dates and sort them in descending order
-    const dates = Object.keys(groupedByDate).sort((a, b) => {
-        return new Date(b) - new Date(a);
-    });
-    
-    // Format date nicely
-    const formatDate = (dateStr) => {
-        const date = new Date(dateStr);
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
+    const updateVerticalTimeline = () => {
+        // Get the container
+        const verticalTimeline = document.getElementById('verticalTimeline');
         
-        if (date.toDateString() === today.toDateString()) {
-            return 'today';
-        } else if (date.toDateString() === yesterday.toDateString()) {
-            return 'yesterday';
-        } else {
-            return date.toLocaleDateString('en-US', { 
-                weekday: 'short', 
-                month: 'short', 
-                day: 'numeric' 
-            });
+        if (accomplishments.length === 0) {
+            verticalTimeline.innerHTML = '<div class="timeline-empty">no history yet. complete focus sessions to build your timeline!</div>';
+            return;
         }
+        
+        // Group accomplishments by date
+        const groupedByDate = {};
+        accomplishments.forEach(acc => {
+            // Use timestamp for more reliable grouping
+            const dateKey = new Date(acc.timestamp).toLocaleDateString('en-US');
+            
+            if (!groupedByDate[dateKey]) {
+                groupedByDate[dateKey] = [];
+            }
+            groupedByDate[dateKey].push(acc);
+        });
+        
+        // Clear existing timeline
+        verticalTimeline.innerHTML = '';
+        
+        // Get dates and sort them in descending order (newest first)
+        const dates = Object.keys(groupedByDate).sort((a, b) => {
+            // Convert date strings to Date objects for comparison
+            return new Date(b) - new Date(a);
+        });
+        
+        // Format date nicely
+        const formatDate = (dateStr) => {
+            try {
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) {
+                    return 'recent'; // Fallback for invalid dates
+                }
+                
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (date.toDateString() === today.toDateString()) {
+                    return 'today';
+                } else if (date.toDateString() === yesterday.toDateString()) {
+                    return 'yesterday';
+                } else {
+                    return date.toLocaleDateString('en-US', { 
+                        weekday: 'short', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                }
+            } catch (e) {
+                console.error('Date formatting error:', e);
+                return 'recent'; // Fallback for any errors
+            }
+        };
+        
+        // Build the timeline HTML
+        dates.forEach(date => {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'timeline-day';
+            
+            const dateHeader = document.createElement('div');
+            dateHeader.className = 'timeline-day-header';
+            dateHeader.textContent = formatDate(date);
+            dayElement.appendChild(dateHeader);
+            
+            // Sort sessions by time (newest first)
+            const sortedSessions = groupedByDate[date].sort((a, b) => {
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+            
+            // Add each session
+            sortedSessions.forEach(session => {
+                const sessionElement = document.createElement('div');
+                sessionElement.className = 'timeline-session';
+                
+                let sessionTime;
+                try {
+                    sessionTime = new Date(session.timestamp).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    
+                    if (sessionTime === "Invalid Date") {
+                        sessionTime = "recent";
+                    }
+                } catch (e) {
+                    console.error('Time formatting error:', e);
+                    sessionTime = "recent";
+                }
+                
+                const sessionHeader = document.createElement('div');
+                sessionHeader.className = 'timeline-session-header';
+                sessionHeader.textContent = sessionTime;
+                sessionElement.appendChild(sessionHeader);
+                
+                const sessionContent = document.createElement('div');
+                sessionContent.className = 'timeline-session-content';
+                sessionContent.textContent = session.text;
+                sessionElement.appendChild(sessionContent);
+                
+                dayElement.appendChild(sessionElement);
+            });
+            
+            verticalTimeline.appendChild(dayElement);
+        });
     };
-    
-    // Build the timeline HTML
-    dates.forEach(date => {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'timeline-day';
-        
-        const dateHeader = document.createElement('div');
-        dateHeader.className = 'timeline-day-header';
-        dateHeader.textContent = formatDate(date);
-        dayElement.appendChild(dateHeader);
-        
-        // Sort sessions by time
-        const sortedSessions = groupedByDate[date].sort((a, b) => {
-            return new Date(b.timestamp) - new Date(a.timestamp);
-        });
-        
-        // Add each session
-        sortedSessions.forEach(session => {
-            const sessionElement = document.createElement('div');
-            sessionElement.className = 'timeline-session';
-            
-            const sessionTime = new Date(session.timestamp).toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            const sessionHeader = document.createElement('div');
-            sessionHeader.className = 'timeline-session-header';
-            sessionHeader.textContent = sessionTime;
-            sessionElement.appendChild(sessionHeader);
-            
-            const sessionContent = document.createElement('div');
-            sessionContent.className = 'timeline-session-content';
-            sessionContent.textContent = session.text;
-            sessionElement.appendChild(sessionContent);
-            
-            dayElement.appendChild(sessionElement);
-        });
-        
-        verticalTimeline.appendChild(dayElement);
-    });
-};
 
 
     // Save data to localStorage
@@ -267,7 +291,7 @@ const updateVerticalTimeline = () => {
                 
                 // Show browser notification if permission granted
                 if (Notification.permission === 'granted') {
-                    new Notification('sana', {
+                    new Notification('suni', {
                         body: `${currentMode === 'focus' ? 'focus time' : 'break'} is over!`,
                         icon: 'https://img.icons8.com/ios-filled/50/000000/tomato.png'
                     });
@@ -344,7 +368,7 @@ const updateVerticalTimeline = () => {
         const accomplishment = {
             text,
             timestamp: now.toISOString(),
-            date: now.toLocaleDateString()
+            date: now.toLocaleDateString('en-US') // Use consistent locale
         };
         
         accomplishments.unshift(accomplishment);
@@ -379,16 +403,13 @@ const updateVerticalTimeline = () => {
             });
         }
     };
-
-    
     
     // Update stats display
     const updateStatsDisplay = () => {
         todaySessionsEl.textContent = stats.todaySessions;
         totalMinutesEl.textContent = stats.totalMinutes;
     };
-
-
+    
     // Check for a new day
     const checkNewDay = () => {
         const lastDate = localStorage.getItem('pomodoroLastDate');
@@ -411,6 +432,39 @@ const updateVerticalTimeline = () => {
         }
     };
     
+    // Fix existing data that might have invalid dates
+    const fixExistingData = () => {
+        const saved = localStorage.getItem('pomodoroAccomplishments');
+        if (saved) {
+            try {
+                const fixed = JSON.parse(saved).map(item => {
+                    // Make sure timestamp is in ISO format
+                    if (item.timestamp && !item.timestamp.includes('T')) {
+                        try {
+                            item.timestamp = new Date(item.timestamp).toISOString();
+                        } catch (e) {
+                            item.timestamp = new Date().toISOString();
+                        }
+                    }
+                    // Make sure date is in consistent format
+                    try {
+                        item.date = new Date(item.timestamp).toLocaleDateString('en-US');
+                    } catch (e) {
+                        item.date = new Date().toLocaleDateString('en-US');
+                    }
+                    return item;
+                });
+                localStorage.setItem('pomodoroAccomplishments', JSON.stringify(fixed));
+                
+                // Reload fixed data
+                accomplishments = fixed;
+                displayAccomplishments();
+            } catch (e) {
+                console.error('Error fixing data:', e);
+            }
+        }
+    };
+    
     // Request notification permission
     if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
         Notification.requestPermission();
@@ -422,6 +476,7 @@ const updateVerticalTimeline = () => {
     resetBtn.addEventListener('click', resetTimer);
     
     // Initialize
+    fixExistingData(); // Fix any existing invalid dates
     loadData();
     checkNewDay();
     updateTimerDisplay();
