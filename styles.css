@@ -554,25 +554,28 @@ textarea:focus {
     }
 
     .timer-controls {
-        width: 100%;
-        justify-content: center;
-        margin-bottom: 30px;
-    }
+        position: relative;
+        z-index: 2;
+      }
+     
+      .timer-controls button {
+        transition-delay: 0s !important;
+      }
+    
+      
 
     button {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
         user-select: none;
-        position: relative;
-        z-index: 10;
-        border-radius: 12px;
-        transform: translateZ(0);
-        min-height: 44px; /* Minimum size for touch targets */
+        -webkit-user-select: none;
+        min-height: 44px;
+        min-width: 80px;
+        padding: 10px 24px;
+        outline: none;
       }
+      
       
 
     .progress-column {
@@ -602,12 +605,12 @@ textarea:focus {
     }
 
     .history-panel {
-        width: 85%; /* Make it not take the full width */
-        max-width: 300px; 
-        right: -100%; /* Move it further off-screen */
-        height: 100%;
-        border-radius: 18px 0 0 18px; /* Rounded corners only on left side */
-        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 80%;
+        max-width: 280px;
+        right: -100%;
+        top: 0;
+        height: 100vh;
+        position: fixed;
         z-index: 100;
       }
       
@@ -617,21 +620,35 @@ textarea:focus {
     }
 
     .history-toggle {
-        position: fixed; /* Make it fixed position */
-        top: 50%; /* Center vertically */
-        right: 0; /* Align to edge */
+        position: fixed;
+        top: 50%;
         transform: translateY(-50%);
-        width: 36px; /* Larger touch target */
-        height: 36px;
-        border-radius: 50% 0 0 50%; /* Half-circle on left side */
-        z-index: 101; /* Above history panel */
-        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 50px; /* Much larger */
+        height: 50px; /* Much larger */
+        background-color: #ff375f; /* Use accent color */
+        color: white; /* White icon */
+        border-radius: 50% 0 0 50%; /* Half circle on left side */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        right: 0;
+        z-index: 101;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
       }
       
       .history-toggle.active {
-        right: 85%; /* Move with the panel */
+        right: calc(80% - 25px); /* Position it just overlapping the panel */
       }
       
+      .history-toggle svg {
+        width: 20px; /* Larger icon */
+        height: 20px; /* Larger icon */
+        transition: transform 0.3s ease;
+      }
+      
+    
+
       /* Make sure controls stack properly on small screens */
       .timer-controls {
         display: flex;
@@ -726,9 +743,12 @@ textarea:focus {
         z-index: 1;
     }
 
+    
     button:active {
-        opacity: 0.8; /* Visual feedback on tap */
+        opacity: 0.7;
+        transform: scale(0.98);
       }
+    
     
     
     /* Additional fixes for iOS rendering */

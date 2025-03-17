@@ -71,5 +71,76 @@
     </div>
 
     <script src="script.js"></script>
+
+    // Add this script to the end of your HTML file (right before </body>) to fix the start button
+
+<script>
+// Direct fix for mobile buttons (runs immediately)
+document.addEventListener('DOMContentLoaded', function() {
+  // Get buttons
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const historyToggle = document.getElementById('historyToggle');
+  
+  // Fix for mobile browsers
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
+  if (isMobile) {
+    console.log("Mobile device detected, applying button fixes");
+    
+    // Remove all existing event listeners (drastic but effective)
+    startBtn.replaceWith(startBtn.cloneNode(true));
+    pauseBtn.replaceWith(pauseBtn.cloneNode(true));
+    resetBtn.replaceWith(resetBtn.cloneNode(true));
+    historyToggle.replaceWith(historyToggle.cloneNode(true));
+    
+    // Get fresh references after replacing
+    const newStartBtn = document.getElementById('startBtn');
+    const newPauseBtn = document.getElementById('pauseBtn');
+    const newResetBtn = document.getElementById('resetBtn');
+    const newHistoryToggle = document.getElementById('historyToggle');
+    
+    // Add direct event handlers
+    newStartBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log("Start button clicked");
+      // Direct call to your timer function
+      window.mobileStartTimer();
+    });
+    
+    newPauseBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log("Pause button clicked");
+      window.mobilePauseTimer();
+    });
+    
+    newResetBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log("Reset button clicked");
+      window.mobileResetTimer();
+    });
+    
+    newHistoryToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log("History toggle clicked");
+      
+      // Toggle classes directly
+      const historyPanel = document.getElementById('historyPanel');
+      const appWrapper = document.querySelector('.app-wrapper');
+      
+      newHistoryToggle.classList.toggle('active');
+      historyPanel.classList.toggle('active');
+      appWrapper.classList.toggle('history-active');
+      
+      // Update timeline if panel is being opened
+      if (historyPanel.classList.contains('active')) {
+        window.updateVerticalTimeline && window.updateVerticalTimeline();
+      }
+    });
+  }
+});
+</script>
+
 </body>
 </html>

@@ -513,6 +513,110 @@ window.createWeekOfData = function() {
         date.setDate(date.getDate() - i);
         days.push(date);
     }
+
+    // Add these functions to your script.js file
+
+// Make timer functions available to the window object for mobile fix
+window.mobileStartTimer = function() {
+    console.log("Mobile start timer triggered");
+    
+    // Timer variables - access from window scope to make sure they're global
+    window.timeLeft = window.timeLeft || (25 * 60); // 25 minutes in seconds
+    
+    // Check if already running
+    if (window.isRunning) return;
+    
+    // Update UI
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('pauseBtn').disabled = false;
+    window.isRunning = true;
+    
+    // Clear any existing timers
+    if (window.timer) clearInterval(window.timer);
+    
+    // Start new timer
+    window.timer = setInterval(() => {
+      window.timeLeft--;
+      
+      // Update timer display
+      const mins = Math.floor(window.timeLeft / 60);
+      const secs = window.timeLeft % 60;
+      const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      document.getElementById('timer').textContent = timeStr;
+      document.title = `${timeStr} - suni pomodoro`;
+      
+      // Check if timer is complete
+      if (window.timeLeft <= 0) {
+        clearInterval(window.timer);
+        window.isRunning = false;
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('pauseBtn').disabled = true;
+        
+        // Session complete logic would go here
+        console.log("Timer completed");
+        
+        // Handle session complete
+        window.handleSessionComplete && window.handleSessionComplete();
+      }
+    }, 1000);
+  };
+  
+  window.mobilePauseTimer = function() {
+    console.log("Mobile pause timer triggered");
+    
+    if (!window.isRunning) return;
+    
+    clearInterval(window.timer);
+    window.isRunning = false;
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('pauseBtn').disabled = true;
+  };
+  
+  window.mobileResetTimer = function() {
+    console.log("Mobile reset timer triggered");
+    
+    // Pause first
+    window.mobilePauseTimer();
+    
+    // Reset timer
+    window.timeLeft = 25 * 60; // 25 minutes
+    
+    // Update display
+    document.getElementById('timer').textContent = "25:00";
+    document.title = "25:00 - suni pomodoro";
+  };
+  
+  // Add handler for session complete
+  window.handleSessionComplete = function() {
+    // Current stats
+    const todaySessionsEl = document.getElementById('todaySessions');
+    const totalMinutesEl = document.getElementById('totalMinutes');
+    
+    // Update stats
+    const currentSessions = parseInt(todaySessionsEl.textContent) || 0;
+    const currentMinutes = parseInt(totalMinutesEl.textContent) || 0;
+    
+    todaySessionsEl.textContent = currentSessions + 1;
+    totalMinutesEl.textContent = currentMinutes + 25;
+    
+    // Save to localStorage
+    const stats = {
+      todaySessions: currentSessions + 1,
+      totalMinutes: currentMinutes + 25
+    };
+    
+    localStorage.setItem('pomodoroStats', JSON.stringify(stats));
+    
+    // Add segment to timeline
+    const dayTimeline = document.getElementById('dayTimeline');
+    const segment = document.createElement('div');
+    segment.className = "timeline-segment focus";
+    segment.style.width = "3.5%"; // 25min as percentage of 12-hour day
+    dayTimeline.appendChild(segment);
+    
+    // If we had session history, we'd update it here
+    console.log("Session completed and recorded");
+  };
     
     // Days are now in reverse order (today is first)
     
