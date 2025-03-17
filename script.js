@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appWrapper.classList.toggle('history-active');
         
         if (historyPanel.classList.contains('active')) {
-          updateVerticalTimeline(); // Update timeline content when opened
+            updateVerticalTimeline(); // Update timeline content when opened
         }
     });
 
@@ -40,15 +40,26 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load data from localStorage
     const loadData = () => {
-        const savedStats = localStorage.getItem('pomodoroStats');
-        if (savedStats) {
-            stats = JSON.parse(savedStats);
-            updateStatsDisplay();
-        }
-        
-        const savedAccomplishments = localStorage.getItem('pomodoroAccomplishments');
-        if (savedAccomplishments) {
-            accomplishments = JSON.parse(savedAccomplishments);
+        try {
+            // Load stats
+            const savedStats = localStorage.getItem('pomodoroStats');
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+                console.log("Loaded stats:", stats);
+                updateStatsDisplay();
+            }
+            
+            // Load accomplishments
+            const savedAccomplishments = localStorage.getItem('pomodoroAccomplishments');
+            if (savedAccomplishments) {
+                accomplishments = JSON.parse(savedAccomplishments);
+                console.log("Loaded accomplishments:", accomplishments.length);
+            }
+            
+            // Load session history (this will display the timeline)
+            loadTimeline();
+        } catch (e) {
+            console.error("Error loading data:", e);
         }
     };
     
@@ -168,6 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveData = () => {
         localStorage.setItem('pomodoroStats', JSON.stringify(stats));
         localStorage.setItem('pomodoroAccomplishments', JSON.stringify(accomplishments));
+        // We also need to save the session history
+        localStorage.setItem('sessionHistory', JSON.stringify(sessionHistory));
+        console.log('Data saved. Stats:', stats, 'Sessions:', sessionHistory.length);
     };
     
     // Format time as MM:SS
@@ -220,45 +234,76 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // Save to localStorage
-        localStorage.setItem('sessionHistory', JSON.stringify(sessionHistory));
+        saveData(); // This will now save the session history too
     };
     
     // Load the timeline from localStorage
     const loadTimeline = () => {
-        const savedHistory = localStorage.getItem('sessionHistory');
+        console.log("Loading timeline...");
+        dayTimeline.innerHTML = ''; // Clear any existing segments
         
-        if (savedHistory) {
-            // Parse the saved data
-            const historyData = JSON.parse(savedHistory);
-            const today = new Date().toLocaleDateString();
+        try {
+            const savedHistory = localStorage.getItem('sessionHistory');
+            if (!savedHistory) {
+                console.log("No session history found");
+                return;
+            }
             
-            // Filter for today's sessions
+            const historyData = JSON.parse(savedHistory);
+            if (!Array.isArray(historyData) || historyData.length === 0) {
+                console.log("Empty session history");
+                return;
+            }
+            
+            console.log("Loaded session history:", historyData.length, "items");
+            
+            // Only show today's sessions on the timeline
+            const today = new Date().toLocaleDateString();
             const todayHistory = historyData.filter(item => {
-                const itemDate = new Date(item.timestamp).toLocaleDateString();
-                return itemDate === today;
+                if (!item || !item.timestamp) return false;
+                try {
+                    const itemDate = new Date(item.timestamp).toLocaleDateString();
+                    return itemDate === today;
+                } catch (e) {
+                    console.error("Error filtering session:", e);
+                    return false;
+                }
             });
             
-            // If we have today's history, display it
-            if (todayHistory.length > 0) {
-                sessionHistory = todayHistory;
-                
-                // Render the timeline segments
-                dayTimeline.innerHTML = ''; // Clear any existing segments
-                
-                todayHistory.forEach(session => {
-                    const segment = document.createElement('div');
-                    segment.className = `timeline-segment ${session.type}`;
-                    
-                    // Calculate width
-                    const percentWidth = (session.durationMinutes / (12 * 60)) * 100;
-                    segment.style.width = `${percentWidth}%`;
-                    
-                    dayTimeline.appendChild(segment);
-                });
-            } else {
-                // No sessions today, start with empty array
-                sessionHistory = [];
+            if (todayHistory.length === 0) {
+                console.log("No sessions for today");
+                return;
             }
+            
+            // Save the filtered history and render it
+            sessionHistory = todayHistory;
+            console.log("Today's sessions:", sessionHistory.length);
+            
+            // Render the timeline segments
+            sessionHistory.forEach(session => {
+                if (!session || !session.type) return;
+                
+                const segment = document.createElement('div');
+                segment.className = `timeline-segment ${session.type}`;
+                
+                // Calculate width based on duration
+                const durationMinutes = session.durationMinutes || 25;
+                const percentWidth = (durationMinutes / (12 * 60)) * 100;
+                segment.style.width = `${percentWidth}%`;
+                
+                dayTimeline.appendChild(segment);
+            });
+            
+            // Make sure stats are consistent with the session history
+            const focusSessions = sessionHistory.filter(s => s.type === 'focus').length;
+            if (focusSessions > 0 && stats.todaySessions === 0) {
+                stats.todaySessions = focusSessions;
+                stats.totalMinutes = focusSessions * 25;
+                updateStatsDisplay();
+                saveData();
+            }
+        } catch (e) {
+            console.error("Error loading timeline:", e);
         }
     };
     
@@ -377,12 +422,14 @@ document.addEventListener('DOMContentLoaded', () => {
         totalMinutesEl.textContent = stats.totalMinutes;
     };
     
-    // Check for a new day
     const checkNewDay = () => {
         const lastDate = localStorage.getItem('pomodoroLastDate');
-        const today = new Date().toLocaleDateString();
+        const today = new Date().toLocaleDateString('en-US'); // Use consistent locale
         
-        if (lastDate !== today) {
+        console.log("Checking day: Last saved date:", lastDate, "Today:", today);
+        
+        if (lastDate && lastDate !== today) {
+            console.log("New day detected, resetting today's stats");
             // Reset today's sessions
             stats.todaySessions = 0;
             updateStatsDisplay();
@@ -392,43 +439,252 @@ document.addEventListener('DOMContentLoaded', () => {
             dayTimeline.innerHTML = '';
             
             saveData();
-            localStorage.setItem('sessionHistory', JSON.stringify(sessionHistory));
             
             // Save today's date
             localStorage.setItem('pomodoroLastDate', today);
+        } else {
+            // Same day, make sure the date is saved
+            localStorage.setItem('pomodoroLastDate', today);
+            console.log("Same day detected, preserving data");
         }
     };
     
-    // Fix existing data that might have invalid dates
-    const fixExistingData = () => {
-        const saved = localStorage.getItem('pomodoroAccomplishments');
-        if (saved) {
-            try {
-                const fixed = JSON.parse(saved).map(item => {
-                    // Make sure timestamp is in ISO format
-                    if (item.timestamp && !item.timestamp.includes('T')) {
-                        try {
-                            item.timestamp = new Date(item.timestamp).toISOString();
-                        } catch (e) {
-                            item.timestamp = new Date().toISOString();
-                        }
-                    }
-                    // Make sure date is in consistent format
-                    try {
-                        item.date = new Date(item.timestamp).toLocaleDateString('en-US');
-                    } catch (e) {
-                        item.date = new Date().toLocaleDateString('en-US');
-                    }
-                    return item;
+    
+// Add this function to your script.js file or run in console
+window.createWeekOfData = function() {
+    console.log("Creating one week of realistic data...");
+    
+    // Clear existing data
+    sessionHistory = [];
+    dayTimeline.innerHTML = '';
+    accomplishments = [];
+    
+    // Project categories with tasks
+    const projectTasks = {
+        design: [
+            "Designed wireframes for homepage",
+            "Created mockups for mobile app",
+            "Updated design system documentation",
+            "Finalized color palette for rebrand",
+            "Created icon set for navigation",
+            "Designed email newsletter template",
+            "Made revisions based on client feedback"
+        ],
+        development: [
+            "Fixed CSS compatibility issues in Safari",
+            "Implemented responsive layout fixes",
+            "Refactored authentication module",
+            "Optimized image loading performance",
+            "Added form validation",
+            "Integrated payment gateway",
+            "Fixed mobile navigation bugs"
+        ],
+        marketing: [
+            "Created content for newsletter",
+            "Drafted social media campaign posts",
+            "Analyzed last campaign metrics",
+            "Updated content calendar",
+            "Prepared presentation for client",
+            "Researched competitor strategies", 
+            "Wrote case study for recent project"
+        ],
+        research: [
+            "Conducted user interviews",
+            "Analyzed survey results",
+            "Created user personas",
+            "Tested prototype with users",
+            "Compiled research findings report",
+            "Planned next round of testing",
+            "Reviewed analytics data"
+        ]
+    };
+    
+    // Get all project types
+    const projectTypes = Object.keys(projectTasks);
+    
+    // Current date/time
+    const now = new Date();
+    const today = now.toLocaleDateString('en-US');
+    
+    // Create a week of history (today + 6 previous days)
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        days.push(date);
+    }
+    
+    // Days are now in reverse order (today is first)
+    
+    // Today's history - for timeline
+    let todayHistory = [];
+    
+    // Generate realistic sessions for each day
+    days.forEach((day, dayIndex) => {
+        const isToday = dayIndex === 0;
+        const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+        const dateStr = day.toLocaleDateString('en-US');
+        
+        // Fewer sessions on weekends
+        let sessionsForDay;
+        if (isWeekend) {
+            // 0-3 sessions on weekends (sometimes none)
+            sessionsForDay = Math.floor(Math.random() * 4);
+            // 70% chance of no sessions on weekends
+            if (Math.random() < 0.7 && !isToday) {
+                sessionsForDay = 0;
+            }
+        } else {
+            // 3-7 sessions on weekdays
+            sessionsForDay = Math.floor(Math.random() * 5) + 3;
+        }
+        
+        // For today, ensure at least 5 sessions
+        if (isToday) {
+            sessionsForDay = Math.max(sessionsForDay, 5);
+        }
+        
+        // Pick a main project focus for the day
+        const mainProject = projectTypes[Math.floor(Math.random() * projectTypes.length)];
+        let tasksForDay = [...projectTasks[mainProject]];
+        
+        // Maybe add 1-2 tasks from another project (30% chance)
+        if (Math.random() < 0.3 && sessionsForDay > 3) {
+            const secondProject = projectTypes.filter(p => p !== mainProject)[
+                Math.floor(Math.random() * (projectTypes.length - 1))
+            ];
+            tasksForDay = [...tasksForDay, ...projectTasks[secondProject].slice(0, 2)];
+        }
+        
+        // Shuffle tasks
+        tasksForDay.sort(() => Math.random() - 0.5);
+        
+        if (sessionsForDay === 0) {
+            console.log(`No sessions for ${dateStr} (weekend)`);
+            return;
+        }
+        
+        console.log(`Creating ${sessionsForDay} sessions for ${dateStr}`);
+        
+        // Create a starting time between 8-10am
+        let startHour = 8 + Math.floor(Math.random() * 2);
+        let startMinute = Math.floor(Math.random() * 60);
+        
+        let currentTime = new Date(day);
+        currentTime.setHours(startHour, startMinute, 0, 0);
+        
+        // Generate each session
+        for (let i = 0; i < sessionsForDay; i++) {
+            // Don't go past 6pm
+            if (currentTime.getHours() >= 18) {
+                break;
+            }
+            
+            // Create focus session
+            const focusStart = new Date(currentTime);
+            
+            // Add task accomplishment
+            const taskText = i < tasksForDay.length ? 
+                tasksForDay[i] : 
+                `Worked on ${mainProject} tasks`;
+            
+            accomplishments.push({
+                text: taskText,
+                timestamp: focusStart.toISOString(),
+                date: dateStr
+            });
+            
+            // If today, add to session history for timeline
+            if (isToday) {
+                todayHistory.push({
+                    type: 'focus',
+                    durationMinutes: 25,
+                    timestamp: focusStart.toISOString()
                 });
-                localStorage.setItem('pomodoroAccomplishments', JSON.stringify(fixed));
+            }
+            
+            // Move forward 25 minutes
+            currentTime.setTime(currentTime.getTime() + 25 * 60 * 1000);
+            
+            // Add break (except after last session)
+            if (i < sessionsForDay - 1) {
+                if (isToday) {
+                    todayHistory.push({
+                        type: 'break',
+                        durationMinutes: 5,
+                        timestamp: currentTime.toISOString()
+                    });
+                }
                 
-                // Reload fixed data
-                accomplishments = fixed;
-            } catch (e) {
-                console.error('Error fixing data:', e);
+                // Move forward 5 minutes
+                currentTime.setTime(currentTime.getTime() + 5 * 60 * 1000);
+                
+                // Add variable break time between pomodoros
+                const breakType = Math.random();
+                let breakTime;
+                
+                if (breakType > 0.8) {
+                    // Long break (15-30 min) - 20% chance
+                    breakTime = Math.floor(Math.random() * 15) + 15;
+                } else {
+                    // Regular short break (5-15 min) - 80% chance
+                    breakTime = Math.floor(Math.random() * 10) + 5;
+                }
+                
+                currentTime.setTime(currentTime.getTime() + breakTime * 60 * 1000);
+                
+                // Maybe add a lunch break around noon (60-90 min)
+                if (currentTime.getHours() === 12 && currentTime.getMinutes() < 30 && Math.random() < 0.8) {
+                    currentTime.setTime(currentTime.getTime() + (Math.floor(Math.random() * 30) + 60) * 60 * 1000);
+                }
             }
         }
+    });
+    
+    // Sort accomplishments (newest first)
+    accomplishments.sort((a, b) => {
+        return new Date(b.timestamp) - new Date(a.timestamp);
+    });
+    
+    // Update session history with today's sessions
+    sessionHistory = todayHistory;
+    
+    // Update stats
+    stats.todaySessions = todayHistory.filter(s => s.type === 'focus').length;
+    stats.totalMinutes = stats.todaySessions * 25;
+    
+    // Save data
+    saveData();
+    localStorage.setItem('pomodoroLastDate', today);
+    
+    // Update UI
+    updateStatsDisplay();
+    renderTimeline();
+    updateVerticalTimeline();
+    
+    console.log(`Created realistic week of data with ${accomplishments.length} total sessions`);
+    console.log(`Today: ${stats.todaySessions} sessions, ${stats.totalMinutes} minutes`);
+    
+    return `Created a realistic week of data with ${accomplishments.length} sessions across 7 days`;
+};
+    
+    // Render the timeline
+    const renderTimeline = () => {
+        // Clear the timeline
+        dayTimeline.innerHTML = '';
+        
+        // Render each segment
+        sessionHistory.forEach(session => {
+            const segment = document.createElement('div');
+            segment.className = `timeline-segment ${session.type}`;
+            
+            // Calculate width based on duration
+            const durationMinutes = session.durationMinutes || 25;
+            const percentWidth = (durationMinutes / (12 * 60)) * 100;
+            segment.style.width = `${percentWidth}%`;
+            
+            dayTimeline.appendChild(segment);
+        });
     };
     
     // Request notification permission
@@ -442,11 +698,14 @@ document.addEventListener('DOMContentLoaded', () => {
     resetBtn.addEventListener('click', resetTimer);
     
     // Initialize
-    fixExistingData(); // Fix any existing invalid dates
     loadData();
     checkNewDay();
     updateTimerDisplay();
     updateModeLabel();
     updateVerticalTimeline();
-    loadTimeline();
+    
+    // Ensure timeline is displayed
+    renderTimeline();
+    
+    console.log("App initialized successfully");
 });
