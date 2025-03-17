@@ -6,14 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const pauseBtn = document.getElementById('pauseBtn');
     const resetBtn = document.getElementById('resetBtn');
     const progressInput = document.getElementById('progressInput');
-    const summaryList = document.getElementById('summaryList');
     const todaySessionsEl = document.getElementById('todaySessions');
     const totalMinutesEl = document.getElementById('totalMinutes');
     const dayTimeline = document.getElementById('dayTimeline');
     const historyToggle = document.getElementById('historyToggle');
     const historyPanel = document.getElementById('historyPanel');
     const appWrapper = document.querySelector('.app-wrapper');
-
 
     historyToggle.addEventListener('click', () => {
         historyToggle.classList.toggle('active');
@@ -24,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
           updateVerticalTimeline(); // Update timeline content when opened
         }
     });
-
 
     // Timer variables
     let timer;
@@ -52,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedAccomplishments = localStorage.getItem('pomodoroAccomplishments');
         if (savedAccomplishments) {
             accomplishments = JSON.parse(savedAccomplishments);
-            displayAccomplishments();
         }
     };
     
@@ -167,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
             verticalTimeline.appendChild(dayElement);
         });
     };
-
 
     // Save data to localStorage
     const saveData = () => {
@@ -373,35 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         accomplishments.unshift(accomplishment);
         saveData();
-        displayAccomplishments();
         updateVerticalTimeline();
-    };
-    
-    // Display accomplishments in the summary list
-    const displayAccomplishments = () => {
-        // Get today's date
-        const today = new Date().toLocaleDateString();
-        
-        // Filter accomplishments for today
-        const todayItems = accomplishments.filter(item => item.date === today);
-        
-        if (todayItems.length === 0) {
-            summaryList.innerHTML = '<div class="summary-item">nothing yet</div>';
-        } else {
-            summaryList.innerHTML = '';
-            todayItems.forEach((item, index) => {
-                const time = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                
-                const itemEl = document.createElement('div');
-                itemEl.className = 'summary-item';
-                itemEl.innerHTML = `
-                    <div class="summary-date">${time}</div>
-                    <div class="summary-text">${item.text}</div>
-                `;
-                
-                summaryList.appendChild(itemEl);
-            });
-        }
     };
     
     // Update stats display
@@ -458,7 +425,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Reload fixed data
                 accomplishments = fixed;
-                displayAccomplishments();
             } catch (e) {
                 console.error('Error fixing data:', e);
             }
@@ -481,7 +447,6 @@ document.addEventListener('DOMContentLoaded', () => {
     checkNewDay();
     updateTimerDisplay();
     updateModeLabel();
-    displayAccomplishments();
     updateVerticalTimeline();
     loadTimeline();
 });

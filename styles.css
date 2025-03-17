@@ -33,8 +33,7 @@ body {
 
 /* Apply lowercase to all text */
 body, h1, h2, h3, p, button, .timer-label, .progress-title, 
-.summary-title, .summary-text, .stat-label, textarea, 
-.summary-date, .timer-display {
+.stat-label, textarea, .timer-display {
     text-transform: lowercase;
 }
 
@@ -132,12 +131,10 @@ h1 {
 }
 
 /* Chevron toggle button */
-/* Update the history-toggle position */
-/* Update the history-toggle to sit on top of the container */
 .history-toggle {
     position: absolute;
-    top: 20px; /* Position from the top instead of center */
-    right: 20px; /* Position from the right edge, inside the container */
+    top: 20px;
+    right: 20px;
     width: 30px;
     height: 30px;
     background-color: white;
@@ -169,9 +166,9 @@ h1 {
 /* Sliding history panel */
 .history-panel {
     width: 300px;
-    flex-shrink: 0; /* Don't let it shrink */
-    position: absolute; /* Take it out of the flow */
-    right: -320px; /* Position it fully off-screen */
+    flex-shrink: 0;
+    position: absolute;
+    right: -320px;
     top: 0;
     background-color: var(--card-bg);
     border-radius: 18px;
@@ -189,7 +186,7 @@ h1 {
 
 .history-panel.active {
     opacity: 1;
-    right: -320px; /* Keep it in the same position */
+    right: -320px;
 }
 
 .history-panel-header {
@@ -255,6 +252,8 @@ button {
     font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 button:hover {
@@ -321,7 +320,7 @@ button:disabled {
 
 .progress-input {
     flex-grow: 1;
-    margin-bottom: 30px;
+    margin-bottom: 0; /* Changed from 30px since we removed summary section */
     display: flex;
     flex-direction: column;
 }
@@ -350,81 +349,7 @@ textarea:focus {
     animation: borderGlow 2s infinite;
 }
 
-.summary-section {
-    margin-top: 30px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 30px;
-}
-
-.summary-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    letter-spacing: -0.3px;
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.summary-list {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    padding: 20px;
-    max-height: 240px;
-    overflow-y: auto;
-    border: 1px solid var(--border-color);
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-}
-
-.summary-item {
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    animation: slideIn 0.4s ease-out;
-    transform-origin: left center;
-    opacity: 0;
-    animation-fill-mode: forwards;
-}
-
-/* Apply staggered animation delay to items */
-.summary-list .summary-item:nth-child(1) { animation-delay: 0.1s; }
-.summary-list .summary-item:nth-child(2) { animation-delay: 0.2s; }
-.summary-list .summary-item:nth-child(3) { animation-delay: 0.3s; }
-.summary-list .summary-item:nth-child(4) { animation-delay: 0.4s; }
-.summary-list .summary-item:nth-child(5) { animation-delay: 0.5s; }
-.summary-list .summary-item:nth-child(6) { animation-delay: 0.6s; }
-.summary-list .summary-item:nth-child(7) { animation-delay: 0.7s; }
-.summary-list .summary-item:nth-child(8) { animation-delay: 0.8s; }
-
-.summary-item:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-}
-
-.summary-date {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-}
-
-.summary-date::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background-color: #ff375f;
-    border-radius: 50%;
-    margin-right: 8px;
-    box-shadow: 0 0 0 2px rgba(255, 55, 95, 0.1);
-    animation: pulse 2s infinite;
-}
-
-.summary-text {
-    line-height: 1.6;
-}
+/* Summary section styles removed */
 
 .session-stats {
     display: flex;
@@ -596,7 +521,7 @@ textarea:focus {
     animation: confettiFade 3s ease-in-out forwards;
 }
 
-/* Responsive styles - Updated for better mobile experience */
+/* Improved responsive styles */
 @media (max-width: 768px) {
     body {
         padding: 20px 10px;
@@ -609,23 +534,12 @@ textarea:focus {
 
     .app-container {
         flex-direction: column;
-        height: auto;
-        min-height: unset;
+        min-height: auto;
         gap: 0;
     }
 
     .timer-column {
-        padding: 30px 20px;
-    }
-
-    .progress-column {
-        border-left: none;
-        border-top: 1px solid var(--border-color);
-        padding: 30px 20px;
-    }
-
-    .progress-input {
-        height: 200px;
+        padding: 25px 15px;
     }
 
     .timer-display {
@@ -633,58 +547,66 @@ textarea:focus {
     }
 
     .timer-label {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
 
     .timer-controls {
-        flex-wrap: wrap;
+        width: 100%;
         justify-content: center;
+        margin-bottom: 30px;
     }
-    
+
     button {
+        min-height: 44px; /* Minimum touch target size */
         min-width: 80px;
-        touch-action: manipulation;
-        padding: 12px 20px;
-        font-size: 15px;
+    }
+
+    .progress-column {
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+        padding: 25px 15px;
+    }
+
+    .progress-input {
+        height: 150px;
+    }
+
+    .session-stats {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .stat-item {
-        padding: 12px 8px;
+        padding: 10px;
         margin: 0 5px;
+        min-width: 120px;
     }
 
     .stat-value {
-        font-size: 26px;
+        font-size: 24px;
     }
 
-    .stat-label {
-        font-size: 12px;
-    }
-
-    /* Fix the history panel for mobile */
     .history-panel {
-        width: 260px;
-        right: -280px;
-        height: auto;
-        max-height: 90vh;
-        top: 50px;
+        width: 250px;
+        height: 100%; 
+        position: fixed;
+        top: 0;
+        right: -270px;
+        height: 100vh;
+        z-index: 1000;
+        border-radius: 0;
     }
 
     .history-panel.active {
-        right: -280px;
+        right: 0;
     }
 
     .app-wrapper.history-active {
-        transform: translateX(-100px);
+        transform: translateX(-80px);
     }
 
-    /* Ensure text areas fit */
-    textarea {
-        font-size: 16px; /* Prevent iOS zoom on focus */
-        -webkit-appearance: none; /* Fix iOS styling */
-    }
-    
-    /* Adjust timeline */
+    /* Day timeline adjustments */
     .day-timeline-container {
         margin-top: 20px;
     }
@@ -692,40 +614,72 @@ textarea:focus {
 
 /* Even smaller screens */
 @media (max-width: 480px) {
+    .app-container {
+        margin-bottom: 15px;
+    }
+
     .timer-display {
-        font-size: 46px;
+        font-size: 48px;
     }
-    
+
     .timer-controls {
-        gap: 10px;
+        gap: 8px;
     }
-    
+
     button {
-        padding: 10px 15px;
         font-size: 14px;
+        padding: 10px 16px;
     }
-    
+
     .session-stats {
         flex-direction: column;
-        gap: 10px;
+        align-items: center;
     }
-    
+
     .stat-item {
-        margin: 0;
-        animation: none;
+        width: 100%;
+        max-width: 200px;
+        margin: 5px 0;
+        animation: none; /* Remove float animation on small screens */
+    }
+
+    /* Fix textarea */
+    textarea {
+        min-height: 120px; /* Increased since we removed the summary section */
     }
 }
 
-/* iOS specific fixes */
+/* iOS Safari Specific Fixes */
 @supports (-webkit-touch-callout: none) {
-    button {
+    /* iOS Safari specific CSS */
+    button, 
+    .history-toggle {
+        cursor: pointer;
         -webkit-touch-callout: none;
         -webkit-user-select: none;
         -webkit-tap-highlight-color: transparent;
     }
     
-    .history-toggle {
-        -webkit-tap-highlight-color: transparent;
+    input,
+    textarea {
+        font-size: 16px; /* Prevent zoom on focus in iOS */
+    }
+    
+    /* Fix for iOS button click issues */
+    .timer-controls {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 30px;
+    }
+    
+    button {
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Additional fixes for iOS rendering */
+    .glass-card {
+        -webkit-backdrop-filter: blur(20px);
     }
 }
 

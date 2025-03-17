@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f5f5f7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>suni</title>
+    <!-- Add favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱️</text></svg>" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="suni.png" type="image/png">
 </head>
-<body>
+<body ontouchstart="">
     <h1>suni</h1>
     
     <div class="app-wrapper">
@@ -24,9 +28,9 @@
                 <div class="timer-label" id="timerLabel">focus time</div>
                 
                 <div class="timer-controls">
-                    <button id="startBtn">start</button>
-                    <button id="pauseBtn" disabled>pause</button>
-                    <button id="resetBtn" class="secondary-button">reset</button>
+                    <button id="startBtn" type="button">start</button>
+                    <button id="pauseBtn" type="button" disabled>pause</button>
+                    <button id="resetBtn" type="button" class="secondary-button">reset</button>
                 </div>
                 
                 <div class="session-stats">
@@ -47,12 +51,7 @@
                     <textarea id="progressInput" placeholder="type tasks you've accomplished during this focus session..."></textarea>
                 </div>
                 
-                <div class="summary-section">
-                    <div class="summary-title">things you've done today</div>
-                    <div class="summary-list" id="summaryList">
-                        <!-- Summary items will be added here -->
-                    </div>
-                </div>
+                <!-- Summary section removed -->
             </div>
         </div>
         
@@ -67,7 +66,7 @@
     </div>
 
     <div class="day-timeline-container">
-        <div class="day-timeline-label">today's journey</div>
+        <!-- <div class="day-timeline-label">today's journey</div> -->
         <div class="day-timeline" id="dayTimeline">
             <!-- Timeline segments will be added here dynamically -->
         </div>
