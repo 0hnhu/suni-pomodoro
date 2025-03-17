@@ -15,7 +15,7 @@
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
       </script>
       <script defer src="/_vercel/insights/script.js"></script>
-      
+
 </head>
 <body ontouchstart="">
     <h1>suni</h1>
@@ -78,157 +78,163 @@
 
     <script src="script.js"></script>
 
-<!-- Add this at the very end of your HTML file, just before </body> -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Fix the history toggle button behavior
-      const historyToggle = document.getElementById('historyToggle');
-      const historyPanel = document.getElementById('historyPanel');
-      
-      if (historyToggle && historyPanel) {
-        // Style the toggle button
-        historyToggle.style.position = 'fixed';
-        historyToggle.style.top = '50%';
-        historyToggle.style.right = '0';
-        historyToggle.style.transform = 'translateY(-50%)';
-        historyToggle.style.zIndex = '9999';
-        historyToggle.style.width = '40px';
-        historyToggle.style.height = '40px';
-        historyToggle.style.background = '#ff375f';
-        historyToggle.style.color = 'white';
-        historyToggle.style.borderRadius = '50% 0 0 50%';
-        historyToggle.style.border = 'none';
-        historyToggle.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.3)';
-        
-        // Override the existing toggle behavior
-        historyToggle.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          const isActive = historyPanel.classList.contains('active');
-          
-          if (!isActive) {
-            // Opening the panel
-            historyPanel.classList.add('active');
-            historyPanel.style.right = '0';
-            historyPanel.style.width = '80%';
-            historyPanel.style.maxWidth = '300px';
-            historyPanel.style.height = '100%';
-            historyPanel.style.zIndex = '9998';
-            
-            // Move the toggle button to a visible position
-            historyToggle.style.right = 'calc(80% - 20px)';
-            
-            if (window.updateVerticalTimeline) {
-              window.updateVerticalTimeline();
-            }
-          } else {
-            // Closing the panel
-            historyPanel.classList.remove('active');
-            historyPanel.style.right = '-100%';
-            
-            // Move toggle back
-            historyToggle.style.right = '0';
-          }
-        }, true);
-      }
-      
-      // TIMER FUNCTIONALITY
-      // Simple direct button handlers
-      const startBtn = document.getElementById('startBtn');
-      const pauseBtn = document.getElementById('pauseBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      
-      // Direct timer variables 
-      let timer;
-      let timeLeft = 25 * 60;
-      let isRunning = false;
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if it's a mobile device
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
+  if (isMobile) {
+    // Fix the history toggle button behavior ONLY on mobile
+    const historyToggle = document.getElementById('historyToggle');
+    const historyPanel = document.getElementById('historyPanel');
     
-      // Timer functions
-      function directStartTimer() {
-        if (isRunning) return;
-        
-        isRunning = true;
-        startBtn.disabled = true;
-        pauseBtn.disabled = false;
-        
-        timer = setInterval(function() {
-          timeLeft--;
-          updateDisplay();
-          
-          if (timeLeft <= 0) {
-            clearInterval(timer);
-            isRunning = false;
-            startBtn.disabled = false;
-            pauseBtn.disabled = true;
-            
-            // Very simple session completion
-            const todaySessions = document.getElementById('todaySessions');
-            const totalMinutes = document.getElementById('totalMinutes');
-            
-            if (todaySessions && totalMinutes) {
-              todaySessions.textContent = (parseInt(todaySessions.textContent) || 0) + 1;
-              totalMinutes.textContent = (parseInt(totalMinutes.textContent) || 0) + 25;
-            }
-          }
-        }, 1000);
-      }
+    if (historyToggle && historyPanel) {
+      // Style the toggle button only on mobile
+      historyToggle.style.position = 'fixed';
+      historyToggle.style.top = '50%';
+      historyToggle.style.right = '0';
+      historyToggle.style.transform = 'translateY(-50%)';
+      historyToggle.style.zIndex = '9999';
+      historyToggle.style.width = '40px';
+      historyToggle.style.height = '40px';
+      historyToggle.style.background = '#ff375f';
+      historyToggle.style.color = 'white';
+      historyToggle.style.borderRadius = '50% 0 0 50%';
+      historyToggle.style.border = 'none';
+      historyToggle.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.3)';
       
-      function directPauseTimer() {
-        if (!isRunning) return;
+      // Override toggle behavior only on mobile
+      historyToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         
+        const isActive = historyPanel.classList.contains('active');
+        
+        if (!isActive) {
+          // Opening the panel
+          historyPanel.classList.add('active');
+          historyPanel.style.right = '0';
+          historyPanel.style.width = '80%';
+          historyPanel.style.maxWidth = '300px';
+          historyPanel.style.height = '100%';
+          historyPanel.style.zIndex = '9998';
+          
+          // Move the toggle button to a visible position
+          historyToggle.style.right = 'calc(80% - 20px)';
+          
+          if (window.updateVerticalTimeline) {
+            window.updateVerticalTimeline();
+          }
+        } else {
+          // Closing the panel
+          historyPanel.classList.remove('active');
+          historyPanel.style.right = '-100%';
+          
+          // Move toggle back
+          historyToggle.style.right = '0';
+        }
+      }, true);
+    }
+  }
+  
+  // TIMER FUNCTIONALITY - works on all devices
+  // Simple direct button handlers
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  
+  // Direct timer variables 
+  let timer;
+  let timeLeft = 25 * 60;
+  let isRunning = false;
+
+  // Timer functions
+  function directStartTimer() {
+    if (isRunning) return;
+    
+    isRunning = true;
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    
+    timer = setInterval(function() {
+      timeLeft--;
+      updateDisplay();
+      
+      if (timeLeft <= 0) {
         clearInterval(timer);
         isRunning = false;
         startBtn.disabled = false;
         pauseBtn.disabled = true;
-      }
-      
-      function directResetTimer() {
-        if (isRunning) {
-          clearInterval(timer);
-          isRunning = false;
-        }
         
-        timeLeft = 25 * 60;
-        updateDisplay();
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-      }
-      
-      function updateDisplay() {
-        const mins = Math.floor(timeLeft / 60);
-        const secs = timeLeft % 60;
-        const display = document.getElementById('timer');
-        if (display) {
-          display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        // Very simple session completion
+        const todaySessions = document.getElementById('todaySessions');
+        const totalMinutes = document.getElementById('totalMinutes');
+        
+        if (todaySessions && totalMinutes) {
+          todaySessions.textContent = (parseInt(todaySessions.textContent) || 0) + 1;
+          totalMinutes.textContent = (parseInt(totalMinutes.textContent) || 0) + 25;
         }
       }
-      
-      // Direct event listeners with both click and touchend
-      if (startBtn) {
-        startBtn.addEventListener('click', directStartTimer);
-        startBtn.addEventListener('touchend', function(e) {
-          e.preventDefault();
-          directStartTimer();
-        });
-      }
-      
-      if (pauseBtn) {
-        pauseBtn.addEventListener('click', directPauseTimer);
-        pauseBtn.addEventListener('touchend', function(e) {
-          e.preventDefault();
-          directPauseTimer();
-        });
-      }
-      
-      if (resetBtn) {
-        resetBtn.addEventListener('click', directResetTimer);
-        resetBtn.addEventListener('touchend', function(e) {
-          e.preventDefault();
-          directResetTimer();
-        });
-      }
-    });
-    </script>
+    }, 1000);
+  }
+  
+  function directPauseTimer() {
+    if (!isRunning) return;
+    
+    clearInterval(timer);
+    isRunning = false;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+  }
+  
+  function directResetTimer() {
+    if (isRunning) {
+      clearInterval(timer);
+      isRunning = false;
+    }
+    
+    timeLeft = 25 * 60;
+    updateDisplay();
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+  }
+  
+  function updateDisplay() {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    const display = document.getElementById('timer');
+    if (display) {
+      display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+  }
+  
+  // Add event listeners only if mobile (for timer buttons)
+  if (isMobile) {
+    if (startBtn) {
+      startBtn.addEventListener('click', directStartTimer);
+      startBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        directStartTimer();
+      });
+    }
+    
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', directPauseTimer);
+      pauseBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        directPauseTimer();
+      });
+    }
+    
+    if (resetBtn) {
+      resetBtn.addEventListener('click', directResetTimer);
+      resetBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        directResetTimer();
+      });
+    }
+  }
+});
+</script>
 </body>
 </html>
