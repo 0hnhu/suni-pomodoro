@@ -126,6 +126,102 @@
           }
         }, true);
       }
+      
+      // TIMER FUNCTIONALITY
+      // Simple direct button handlers
+      const startBtn = document.getElementById('startBtn');
+      const pauseBtn = document.getElementById('pauseBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      
+      // Direct timer variables 
+      let timer;
+      let timeLeft = 25 * 60;
+      let isRunning = false;
+    
+      // Timer functions
+      function directStartTimer() {
+        if (isRunning) return;
+        
+        isRunning = true;
+        startBtn.disabled = true;
+        pauseBtn.disabled = false;
+        
+        timer = setInterval(function() {
+          timeLeft--;
+          updateDisplay();
+          
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            isRunning = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            
+            // Very simple session completion
+            const todaySessions = document.getElementById('todaySessions');
+            const totalMinutes = document.getElementById('totalMinutes');
+            
+            if (todaySessions && totalMinutes) {
+              todaySessions.textContent = (parseInt(todaySessions.textContent) || 0) + 1;
+              totalMinutes.textContent = (parseInt(totalMinutes.textContent) || 0) + 25;
+            }
+          }
+        }, 1000);
+      }
+      
+      function directPauseTimer() {
+        if (!isRunning) return;
+        
+        clearInterval(timer);
+        isRunning = false;
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+      }
+      
+      function directResetTimer() {
+        if (isRunning) {
+          clearInterval(timer);
+          isRunning = false;
+        }
+        
+        timeLeft = 25 * 60;
+        updateDisplay();
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+      }
+      
+      function updateDisplay() {
+        const mins = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        const display = document.getElementById('timer');
+        if (display) {
+          display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+      }
+      
+      // Direct event listeners with both click and touchend
+      if (startBtn) {
+        startBtn.addEventListener('click', directStartTimer);
+        startBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          directStartTimer();
+        });
+      }
+      
+      if (pauseBtn) {
+        pauseBtn.addEventListener('click', directPauseTimer);
+        pauseBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          directPauseTimer();
+        });
+      }
+      
+      if (resetBtn) {
+        resetBtn.addEventListener('click', directResetTimer);
+        resetBtn.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          directResetTimer();
+        });
+      }
     });
     </script>
 </body>
