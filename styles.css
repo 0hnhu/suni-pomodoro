@@ -615,30 +615,36 @@ textarea:focus {
       }
       
 
-    .history-panel.active {
+  
+      .history-panel.active {
         right: 0;
-    }
+        width: 80%;
+        max-width: 300px;
+      }
+    
 
     .history-toggle {
-        position: fixed;
+        position: fixed !important;
         top: 50%;
-        transform: translateY(-50%);
-        width: 50px; /* Much larger */
-        height: 50px; /* Much larger */
-        background-color: #ff375f; /* Use accent color */
-        color: white; /* White icon */
-        border-radius: 50% 0 0 50%; /* Half circle on left side */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         right: 0;
-        z-index: 101;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background-color: #ff375f;
+        color: white;
+        border-radius: 50% 0 0 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: right 0.3s ease;
       }
       
+      
       .history-toggle.active {
-        right: calc(80% - 25px); /* Position it just overlapping the panel */
+        right: 80%; /* Move with the panel */
+        transform: translateY(-50%) rotate(180deg);
       }
       
       .history-toggle svg {
@@ -663,9 +669,9 @@ textarea:focus {
         height: calc(100vh - 50px); /* Full height minus header */
         max-height: none;
     }
-
+    
     .app-wrapper.history-active {
-        transform: translateX(-15%); /* Move less to keep more content visible */
+        transform: translateX(-80px);
       }
 
     /* Day timeline adjustments */

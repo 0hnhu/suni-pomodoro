@@ -516,47 +516,53 @@ window.createWeekOfData = function() {
 
     // Add these functions to your script.js file
 
-// Make timer functions available to the window object for mobile fix
+// Add this at the very end of your script.js file
+
+// Direct mobile timer function
 window.mobileStartTimer = function() {
     console.log("Mobile start timer triggered");
     
-    // Timer variables - access from window scope to make sure they're global
-    window.timeLeft = window.timeLeft || (25 * 60); // 25 minutes in seconds
+    // Get DOM elements
+    const timerDisplay = document.getElementById('timer');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
     
-    // Check if already running
+    // Set up variables if they don't exist
+    window.timeLeft = window.timeLeft || 25 * 60;
+    window.isRunning = window.isRunning || false;
+    
+    // Don't start if already running
     if (window.isRunning) return;
     
     // Update UI
-    document.getElementById('startBtn').disabled = true;
-    document.getElementById('pauseBtn').disabled = false;
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
     window.isRunning = true;
     
-    // Clear any existing timers
-    if (window.timer) clearInterval(window.timer);
+    // Start a reliable interval timer
+    if (window.mobileTimer) clearInterval(window.mobileTimer);
     
-    // Start new timer
-    window.timer = setInterval(() => {
+    window.mobileTimer = setInterval(function() {
       window.timeLeft--;
       
-      // Update timer display
+      // Format time
       const mins = Math.floor(window.timeLeft / 60);
       const secs = window.timeLeft % 60;
-      const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-      document.getElementById('timer').textContent = timeStr;
-      document.title = `${timeStr} - suni pomodoro`;
+      const displayTime = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       
-      // Check if timer is complete
+      // Update display
+      timerDisplay.textContent = displayTime;
+      
+      // Check if timer is done
       if (window.timeLeft <= 0) {
-        clearInterval(window.timer);
+        clearInterval(window.mobileTimer);
         window.isRunning = false;
-        document.getElementById('startBtn').disabled = false;
-        document.getElementById('pauseBtn').disabled = true;
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
         
-        // Session complete logic would go here
-        console.log("Timer completed");
-        
-        // Handle session complete
-        window.handleSessionComplete && window.handleSessionComplete();
+        // Handle session completion
+        const timerComplete = new CustomEvent('timerComplete');
+        document.dispatchEvent(timerComplete);
       }
     }, 1000);
   };
@@ -564,28 +570,64 @@ window.mobileStartTimer = function() {
   window.mobilePauseTimer = function() {
     console.log("Mobile pause timer triggered");
     
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    
     if (!window.isRunning) return;
     
-    clearInterval(window.timer);
+    clearInterval(window.mobileTimer);
     window.isRunning = false;
-    document.getElementById('startBtn').disabled = false;
-    document.getElementById('pauseBtn').disabled = true;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
   };
   
   window.mobileResetTimer = function() {
     console.log("Mobile reset timer triggered");
     
-    // Pause first
-    window.mobilePauseTimer();
+    const timerDisplay = document.getElementById('timer');
     
-    // Reset timer
-    window.timeLeft = 25 * 60; // 25 minutes
+    // First pause if running
+    if (window.isRunning) {
+      window.mobilePauseTimer();
+    }
     
-    // Update display
-    document.getElementById('timer').textContent = "25:00";
-    document.title = "25:00 - suni pomodoro";
+    // Reset to 25 minutes
+    window.timeLeft = 25 * 60;
+    timerDisplay.textContent = "25:00";
   };
   
+  // Listen for timer completion to trigger normal app functions
+  document.addEventListener('timerComplete', function() {
+    // Get stats elements
+    const todaySessionsEl = document.getElementById('todaySessions');
+    const totalMinutesEl = document.getElementById('totalMinutes');
+    
+    // Get current values
+    const currentSessions = parseInt(todaySessionsEl.textContent) || 0;
+    const currentMinutes = parseInt(totalMinutesEl.textContent) || 0;
+    
+    // Update stats
+    todaySessionsEl.textContent = (currentSessions + 1).toString();
+    totalMinutesEl.textContent = (currentMinutes + 25).toString();
+    
+    // Add timeline segment
+    const dayTimeline = document.getElementById('dayTimeline');
+    const segment = document.createElement('div');
+    segment.className = "timeline-segment focus";
+    segment.style.width = "3.5%";
+    dayTimeline.appendChild(segment);
+    
+    // Save to localStorage (if available)
+    try {
+      const stats = {
+        todaySessions: currentSessions + 1,
+        totalMinutes: currentMinutes + 25
+      };
+      localStorage.setItem('pomodoroStats', JSON.stringify(stats));
+    } catch (e) {
+      console.error("Error saving stats:", e);
+    }
+  });
   // Add handler for session complete
   window.handleSessionComplete = function() {
     // Current stats
