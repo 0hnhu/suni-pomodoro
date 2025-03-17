@@ -560,9 +560,20 @@ textarea:focus {
     }
 
     button {
-        min-height: 44px; /* Minimum touch target size */
-        min-width: 80px;
-    }
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        user-select: none;
+        position: relative;
+        z-index: 10;
+        border-radius: 12px;
+        transform: translateZ(0);
+        min-height: 44px; /* Minimum size for touch targets */
+      }
+      
 
     .progress-column {
         border-left: none;
@@ -591,20 +602,44 @@ textarea:focus {
     }
 
     .history-panel {
-        width: 250px;
-        height: 100vh; 
-        max-height: 100vh;
-        position: fixed;
-        top: 0;
-        right: -270px;
-        height: 100vh;
-        z-index: 1000;
-        border-radius: 0;
-    }
+        width: 85%; /* Make it not take the full width */
+        max-width: 300px; 
+        right: -100%; /* Move it further off-screen */
+        height: 100%;
+        border-radius: 18px 0 0 18px; /* Rounded corners only on left side */
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+      }
+      
 
     .history-panel.active {
         right: 0;
     }
+
+    .history-toggle {
+        position: fixed; /* Make it fixed position */
+        top: 50%; /* Center vertically */
+        right: 0; /* Align to edge */
+        transform: translateY(-50%);
+        width: 36px; /* Larger touch target */
+        height: 36px;
+        border-radius: 50% 0 0 50%; /* Half-circle on left side */
+        z-index: 101; /* Above history panel */
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .history-toggle.active {
+        right: 85%; /* Move with the panel */
+      }
+      
+      /* Make sure controls stack properly on small screens */
+      .timer-controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+
 
     .vertical-timeline {
         padding: 10px 15px;
@@ -613,8 +648,8 @@ textarea:focus {
     }
 
     .app-wrapper.history-active {
-        transform: translateX(-80px);
-    }
+        transform: translateX(-15%); /* Move less to keep more content visible */
+      }
 
     /* Day timeline adjustments */
     .day-timeline-container {
@@ -690,6 +725,11 @@ textarea:focus {
         position: relative;
         z-index: 1;
     }
+
+    button:active {
+        opacity: 0.8; /* Visual feedback on tap */
+      }
+    
     
     /* Additional fixes for iOS rendering */
     .glass-card {
