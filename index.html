@@ -74,11 +74,13 @@
 
 <!-- Add this at the very end of your HTML file, just before </body> -->
 <script>
-    // Super simple mobile fix
     document.addEventListener('DOMContentLoaded', function() {
-      // Make sure the chevron is visible and fixed
+      // Fix the history toggle button behavior
       const historyToggle = document.getElementById('historyToggle');
-      if (historyToggle) {
+      const historyPanel = document.getElementById('historyPanel');
+      
+      if (historyToggle && historyPanel) {
+        // Style the toggle button
         historyToggle.style.position = 'fixed';
         historyToggle.style.top = '50%';
         historyToggle.style.right = '0';
@@ -88,101 +90,41 @@
         historyToggle.style.height = '40px';
         historyToggle.style.background = '#ff375f';
         historyToggle.style.color = 'white';
-      }
-    
-      // Simple direct button handlers
-      const startBtn = document.getElementById('startBtn');
-      const pauseBtn = document.getElementById('pauseBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      
-      // Direct timer variables 
-      let timer;
-      let timeLeft = 25 * 60;
-      let isRunning = false;
-    
-      // Timer functions
-      function directStartTimer() {
-        if (isRunning) return;
+        historyToggle.style.borderRadius = '50% 0 0 50%';
+        historyToggle.style.border = 'none';
+        historyToggle.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.3)';
         
-        isRunning = true;
-        startBtn.disabled = true;
-        pauseBtn.disabled = false;
-        
-        timer = setInterval(function() {
-          timeLeft--;
-          updateDisplay();
+        // Override the existing toggle behavior
+        historyToggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
           
-          if (timeLeft <= 0) {
-            clearInterval(timer);
-            isRunning = false;
-            startBtn.disabled = false;
-            pauseBtn.disabled = true;
+          const isActive = historyPanel.classList.contains('active');
+          
+          if (!isActive) {
+            // Opening the panel
+            historyPanel.classList.add('active');
+            historyPanel.style.right = '0';
+            historyPanel.style.width = '80%';
+            historyPanel.style.maxWidth = '300px';
+            historyPanel.style.height = '100%';
+            historyPanel.style.zIndex = '9998';
             
-            // Very simple session completion
-            const todaySessions = document.getElementById('todaySessions');
-            const totalMinutes = document.getElementById('totalMinutes');
+            // Move the toggle button to a visible position
+            historyToggle.style.right = 'calc(80% - 20px)';
             
-            if (todaySessions && totalMinutes) {
-              todaySessions.textContent = (parseInt(todaySessions.textContent) || 0) + 1;
-              totalMinutes.textContent = (parseInt(totalMinutes.textContent) || 0) + 25;
+            if (window.updateVerticalTimeline) {
+              window.updateVerticalTimeline();
             }
+          } else {
+            // Closing the panel
+            historyPanel.classList.remove('active');
+            historyPanel.style.right = '-100%';
+            
+            // Move toggle back
+            historyToggle.style.right = '0';
           }
-        }, 1000);
-      }
-      
-      function directPauseTimer() {
-        if (!isRunning) return;
-        
-        clearInterval(timer);
-        isRunning = false;
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-      }
-      
-      function directResetTimer() {
-        if (isRunning) {
-          clearInterval(timer);
-          isRunning = false;
-        }
-        
-        timeLeft = 25 * 60;
-        updateDisplay();
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-      }
-      
-      function updateDisplay() {
-        const mins = Math.floor(timeLeft / 60);
-        const secs = timeLeft % 60;
-        const display = document.getElementById('timer');
-        if (display) {
-          display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-      }
-      
-      // Direct event listeners with both click and touchend
-      if (startBtn) {
-        startBtn.addEventListener('click', directStartTimer);
-        startBtn.addEventListener('touchend', function(e) {
-          e.preventDefault();
-          directStartTimer();
-        });
-      }
-      
-      if (pauseBtn) {
-        pauseBtn.addEventListener('click', directPauseTimer);
-        pauseBtn.addEventListener('touchend', function(e) {
-          e.preventDefault();
-          directPauseTimer();
-        });
-      }
-      
-      if (resetBtn) {
-        resetBtn.addEventListener('click', directResetTimer);
-        resetBtn.addEventListener('touchend', function(e) {
-          e.preventDefault();
-          directResetTimer();
-        });
+        }, true);
       }
     });
     </script>
